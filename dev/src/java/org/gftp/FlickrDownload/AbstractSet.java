@@ -83,10 +83,6 @@ public abstract class AbstractSet {
 				.addContent(new Element("id").setText(getSetId()))
 				.addContent(new Element("title").setText(getSetTitle()))
 				.addContent(new Element("description").setText(getSetDescription()))
-				.addContent(XmlUtils.downloadMediaAndCreateElement("thumbnailFile", 
-						new File(setDir, setThumbnailBaseFilename), 
-						getSetId() + File.separator + setThumbnailBaseFilename, 
-						getPrimaryPhotoSmallSquareUrl(), false, configuration))
 				.addContent(createStatsXml());
 	}
 
@@ -95,45 +91,18 @@ public abstract class AbstractSet {
             // result, but probably not all, so fetch it all.
             photo = flickr.getPhotosInterface().getPhoto(photo.getId());
 
-            Element tagEle = new Element("tags");
-            for (Object tagObj : photo.getTags()) {
-            	Tag tag = (Tag) tagObj;
-            	tagEle.addContent(new Element("tag")
-            		.setAttribute("author", tag.getAuthor())
-            		.setAttribute("value", tag.getValue())
-                    .setAttribute("raw", tag.getRaw()));
-            }
-
-            Element notesEle = new Element("notes");
-            for (Note note : (Collection<Note>) photo.getNotes()) {
-            	notesEle.addContent(new Element("note")
-            		.setAttribute("id", note.getId())
-            		.setAttribute("author", note.getAuthor())
-            		.setAttribute("text", note.getText())
-            		.setAttribute("x", String.valueOf(note.getBounds().getX()))
-            		.setAttribute("y", String.valueOf(note.getBounds().getY()))
-            		.setAttribute("width", String.valueOf(note.getBounds().getWidth()))
-            		.setAttribute("height", String.valueOf(note.getBounds().getHeight())));
-            }
-
-            Element exifTagsEle = new Element("exif");
-            if (this.configuration.downloadExifData) {
-            	for (Exif exif : (Collection<Exif>) flickr.getPhotosInterface().getExif(photo.getId(), photo.getSecret())) {
-            		exifTagsEle.addContent(new Element("exif")
-            			.setAttribute("clean", StringUtils.defaultString(exif.getClean()))
-            			.setAttribute("label", StringUtils.defaultString(exif.getLabel()))
-            			.setAttribute("raw", StringUtils.defaultString(exif.getRaw()))
-            			.setAttribute("tag", StringUtils.defaultString(exif.getTag()))
-            			.setAttribute("tagspace", StringUtils.defaultString(exif.getTagspace()))
-            			.setAttribute("tagspaceId", StringUtils.defaultString(exif.getTagspaceId())));
-            	}
-            }
-
             String originalUrl = null;
             String originalBaseFilename;
             if (photo.getMedia().equals("video")) {
             	originalUrl = getOriginalVideoUrl(flickr, photo.getId());
-            	originalBaseFilename = String.format("%s_orig.%s", photo.getId(), IOUtils.getVideoExtension(originalUrl));
+            	if(originalUrl == null){
+            		Logger.getLogger(getClass()).warn(String.format("Missing video, Flicker ID: %s",photo.getId()));
+            		return;
+            	}
+            	originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tk%1$tM_%2$s_orig.%3$s",
+            			photo.getDateTaken(), 
+            			photo.getId(), 
+            			IOUtils.getVideoExtension(originalUrl));
             }
             else {
             	try {
@@ -142,87 +111,22 @@ public abstract class AbstractSet {
             	catch (FlickrException e) {
             		// NOOP - original URL not available
             	}
-        		originalBaseFilename = String.format("%s_orig.%s", 
+        		originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tk%1$tM_%2$s_orig.%3$s", 
+        				photo.getDateTaken(),
         				photo.getId(), 
         				photo.getOriginalFormat());
             }
 
-            String smallSquareBaseFilename = String.format("%s_thumb_sq.jpg", photo.getId());
-            String mediumBaseFilename = String.format("%s_med.jpg", photo.getId());
-            String largeBaseFilename = String.format("%s_large.jpg", photo.getId());
+            this.expectedFiles.add(originalBaseFilename);
 
-    		this.expectedFiles.add(String.format("%s.html", photo.getId()));
-    		this.expectedFiles.add(smallSquareBaseFilename);
-    		this.expectedFiles.add(mediumBaseFilename);
-    		this.expectedFiles.add(largeBaseFilename);
-    		this.expectedFiles.add(originalBaseFilename);
 
-            GeoData geoData = photo.getGeoData();
-            Element media = new Element("media")
-            	.setAttribute("type", photo.getMedia())
-            	.addContent(new Element("id").setText(photo.getId()))
-            	.addContent(new Element("title").setText(photo.getTitle()))
-            	.addContent(new Element("description").setText(photo.getDescription()))
-    			.addContent(new Element("publicUrl").setText(photo.getUrl()));
-
-            if(!configuration.onlyOriginals) {
-    			media.addContent(XmlUtils.createMediaElement("image", null, null, photo.getThumbnailUrl())
-    					.setAttribute("type", THUMBNAIL_PHOTO_DESCRIPTION))
-    			.addContent(XmlUtils.createMediaElement("image", null, null, photo.getSmallUrl())
-    					.setAttribute("type", SMALL_PHOTO_DESCRIPTION))
-            	.addContent(XmlUtils.downloadMediaAndCreateElement("image",
-            			new File(getSetDirectory(), smallSquareBaseFilename), 
-            			smallSquareBaseFilename,
-            			photo.getSmallSquareUrl(),
-            			false,
-                        configuration)
-            				.setAttribute("type", SMALL_SQUARE_PHOTO_DESCRIPTION))
-            	.addContent(XmlUtils.downloadMediaAndCreateElement("image",
-            			new File(getSetDirectory(), mediumBaseFilename), 
-            			mediumBaseFilename,
-            			photo.getMediumUrl(),
-            			false,
-                        configuration)
-            				.setAttribute("type", MEDIUM_PHOTO_DESCRIPTION))
-            	.addContent(XmlUtils.downloadMediaAndCreateElement("image",
-            			new File(getSetDirectory(), largeBaseFilename), 
-            			largeBaseFilename,
-            			photo.getLargeUrl(),
-            			false,
-                        configuration)
-            				.setAttribute("type", LARGE_PHOTO_DESCRIPTION));
-            }
-
-            media.addContent(XmlUtils.downloadMediaAndCreateElement("image",
-                    new File(getSetDirectory(), originalBaseFilename), 
-                    originalBaseFilename,
-                    originalUrl,
-                    false,
-                    configuration)
-                        .setAttribute("type", ORIGINAL_MEDIA_DESCRIPTION)
-                        .setAttribute("format", photo.getOriginalFormat()))
-           		.addContent(new Element("dates")               		
-           			.addContent(XmlUtils.createDateElement("taken", photo.getDateTaken())
-           				.setAttribute("granularity", photo.getTakenGranularity()))
-           			.addContent(XmlUtils.createDateElement("uploaded", photo.getDatePosted()))
-           			.addContent(XmlUtils.createDateElement("lastUpdate", photo.getLastUpdate())))
-            	.addContent(new Element("license").setText(Licenses.getLicense(flickr, photo.getLicense())))
-            	.addContent(new Element("primary").setText(photo.getId().equals(getPrimaryPhotoId()) ? "1" : "0"))
-            	.addContent(new Element("privacy")
-            		.setAttribute("family", (photo.isFamilyFlag() ? "1" : "0"))
-            		.setAttribute("friends", (photo.isFriendFlag() ? "1" : "0"))
-            		.setAttribute("public", (photo.isPublicFlag() ? "1" : "0")))
-            	.addContent(new Element("rotation").setText(String.valueOf(photo.getRotation())))
-            	.addContent(new Element("geodata")
-            		.setAttribute("placeId", photo.getPlaceId())
-            		.setAttribute("accuracy", geoData == null ? "" : String.valueOf(geoData.getAccuracy()))
-            		.setAttribute("latitude", geoData == null ? "" : String.valueOf(geoData.getLatitude()))
-            		.setAttribute("longitude", geoData == null ? "" : String.valueOf(geoData.getLongitude())))
-              	.addContent(tagEle)
-               	.addContent(notesEle)
-               	.addContent(exifTagsEle);
-
-            setXml.addContent(media);
+            XmlUtils.downloadMediaAndCreateElement("image",
+            				new File(getSetDirectory(), originalBaseFilename), 
+            				originalBaseFilename,
+            				originalUrl,
+            				false,
+            				configuration);
+            
 	}
 
 	public Element createSetlevelXml(Flickr flickr) throws IOException, SAXException, FlickrException {

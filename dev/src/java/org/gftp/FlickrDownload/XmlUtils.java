@@ -103,11 +103,14 @@ public class XmlUtils {
 		return element;
 	}
 	
-	public static Element downloadMediaAndCreateElement(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Configuration configuration) throws IOException {
-		if (!configuration.onlyData && remoteUrl != null && (!localFilename.exists() || forceDownload))
+	public static void downloadMediaAndCreateElement(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Configuration configuration) throws IOException {
+		if (remoteUrl == null || localFilename.exists()){
+			Logger.getLogger(XmlUtils.class).info(String.format("Skip file %s", localFilename.getName()));
+		}else{
 			IOUtils.downloadUrl(remoteUrl, localFilename);
+		}
 
-		return createMediaElement(elementName, localFilename, displayLocalFilename, remoteUrl);
+		//return createMediaElement(elementName, localFilename, displayLocalFilename, remoteUrl);
 	}
 
 	public static void performXsltTransformation(final Configuration configuration, String xsltStylesheet, File xmlFile, File outputFile, XsltParameter... parameters) throws IOException, TransformerException {

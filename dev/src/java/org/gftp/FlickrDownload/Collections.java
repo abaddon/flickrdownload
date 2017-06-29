@@ -61,8 +61,6 @@ public class Collections {
     			.addContent(new Element("id").setText(collection.getId()))
     			.addContent(new Element("title").setText(collection.getTitle()))
     			.addContent(new Element("description").setText(collection.getDescription()))
-    			.addContent(XmlUtils.downloadMediaAndCreateElement("iconLarge", largeFile, iconsDir.getName() + File.separator + largeFile.getName(), iconLarge, this.configuration.downloadCollectionIcons, configuration))
-    			.addContent(XmlUtils.downloadMediaAndCreateElement("iconSmall", smallFile, iconsDir.getName() + File.separator + smallFile.getName(), iconSmall, this.configuration.downloadCollectionIcons, configuration))
     			.addContent(setsEle));
     	}
 
