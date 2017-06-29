@@ -33,7 +33,7 @@ public class Set extends AbstractSet {
 	}
 
 	@Override
-	protected void download(Flickr flickr, Element setXml) throws IOException, SAXException, FlickrException {
+	protected void download(Flickr flickr) throws IOException, SAXException, FlickrException {
 		int pageNum = 1;
 		int retrievedPhotos = 0;
 		int totalPhotos = 0;
@@ -46,7 +46,7 @@ public class Set extends AbstractSet {
 				retrievedPhotos++;
 				Photo photo = (Photo) photos.get(i);
                 Logger.getLogger(Set.class).info("Processing photo " + retrievedPhotos + " of " + totalPhotos + ": " + photo.getUrl());
-				processPhoto(photo, flickr, setXml);
+				processPhoto(photo, flickr);
 			}
 		} while (retrievedPhotos < totalPhotos);		
 	}

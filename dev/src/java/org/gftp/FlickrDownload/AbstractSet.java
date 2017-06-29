@@ -60,7 +60,7 @@ public abstract class AbstractSet {
 	protected abstract String getSetDescription();
 	protected abstract String getPrimaryPhotoId();
 	protected abstract String getPrimaryPhotoSmallSquareUrl();
-	protected abstract void download(Flickr flickr, Element setXml) throws IOException, SAXException, FlickrException;
+	protected abstract void download(Flickr flickr) throws IOException, SAXException, FlickrException;
 
 	public File getSetDirectory() {
 		return new File(this.configuration.photosBaseDirectory, getSetTitle());
@@ -86,7 +86,7 @@ public abstract class AbstractSet {
 				.addContent(createStatsXml());
 	}
 
-	protected void processPhoto(Photo photo, Flickr flickr, Element setXml) throws IOException, SAXException, FlickrException {
+	protected void processPhoto(Photo photo, Flickr flickr) throws IOException, SAXException, FlickrException {
             // We probably have some of the photo data from a search
             // result, but probably not all, so fetch it all.
             photo = flickr.getPhotosInterface().getPhoto(photo.getId());
@@ -130,8 +130,7 @@ public abstract class AbstractSet {
 	}
 
 	public Element createSetlevelXml(Flickr flickr) throws IOException, SAXException, FlickrException {
-		Logger.getLogger(getClass()).info(String.format("Downloading information for set %s - %s",
-				getSetId(), getSetTitle()));
+		Logger.getLogger(getClass()).info(String.format("Downloading information for set %s - %s", getSetId(), getSetTitle()));
 
 		Element setXml = new Element("set")
 				.addContent(XmlUtils.createApplicationXml())
@@ -140,7 +139,7 @@ public abstract class AbstractSet {
 				.addContent(new Element("title").setText(getSetTitle()))
 				.addContent(new Element("description").setText(getSetDescription()));
 
-		download(flickr, setXml);
+		download(flickr);
 		
 		return setXml;
 	}
