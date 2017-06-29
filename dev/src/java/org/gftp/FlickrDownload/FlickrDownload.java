@@ -35,12 +35,8 @@ import com.flickr4java.flickr.people.PeopleInterface;
 import com.flickr4java.flickr.people.User;
 
 public class FlickrDownload {
-	public static String ALL_COLLECTIONS_HTML_FILENAME = "collections.html";
-	public static String ALL_SETS_HTML_FILENAME = "sets.html";
-	public static String STATS_HTML_FILENAME = "stats.html";
+	
 	public static String TOPLEVEL_XML_FILENAME = "flickr.xml";
-	public static String PHOTOS_CSS_FILENAME = "photos.css";
-	public static String PLAY_ICON_FILENAME = "play_icon.png";
 
 	protected static class Arguments {
 		@Option(name="--authDir", required=false)
@@ -77,59 +73,7 @@ public class FlickrDownload {
 		public boolean onlyOriginals = false;
 	}
 
-	private static File getToplevelXmlFilename(File photosBaseDirectory) {
 		return new File(photosBaseDirectory, TOPLEVEL_XML_FILENAME);
-	}
-
-	private static Collection<String> createTopLevelFiles(Configuration configuration, Collections collections, Sets sets) throws FlickrException, SAXException, IOException, JDOMException, TransformerException {
-		Collection<String> createdFiles = new HashSet<String>();
-
-		File toplevelXmlFilename = getToplevelXmlFilename(configuration.photosBaseDirectory);
-		Logger.getLogger(FlickrDownload.class).info("Creating XML file " + toplevelXmlFilename.getAbsolutePath());
-
-		MediaIndexer indexer = new XmlMediaIndexer(configuration);
-		Element toplevel = new Element("flickr")
-			.addContent(XmlUtils.createApplicationXml())
-			.addContent(XmlUtils.createUserXml(configuration))
-			.addContent(collections.createTopLevelXml())
-			.addContent(sets.createTopLevelXml())
-			.addContent(new Stats(sets).createStatsXml(indexer));
-
-		createdFiles.addAll(indexer.writeIndex());
-
-		XmlUtils.outputXmlFile(toplevelXmlFilename, toplevel);
-		createdFiles.add(toplevelXmlFilename.getName());
-
-		Logger.getLogger(FlickrDownload.class).info("Copying support files and performing XSLT transformations");
-
-		IOUtils.copyToFileAndCloseStreams(XmlUtils.class.getResourceAsStream("xslt/" + PHOTOS_CSS_FILENAME),
-				new File(configuration.photosBaseDirectory, PHOTOS_CSS_FILENAME));
-		createdFiles.add(PHOTOS_CSS_FILENAME);
-
-		IOUtils.copyToFileAndCloseStreams(XmlUtils.class.getResourceAsStream("xslt/" + PLAY_ICON_FILENAME),
-				new File(configuration.photosBaseDirectory, PLAY_ICON_FILENAME));
-		createdFiles.add(PLAY_ICON_FILENAME);
-
-		XmlUtils.performXsltTransformation(configuration, "all_sets.xsl", toplevelXmlFilename,
-				new File(configuration.photosBaseDirectory, ALL_SETS_HTML_FILENAME));
-		createdFiles.add(ALL_SETS_HTML_FILENAME);
-
-		XmlUtils.performXsltTransformation(configuration, "all_collections.xsl", toplevelXmlFilename,
-				new File(configuration.photosBaseDirectory, ALL_COLLECTIONS_HTML_FILENAME));
-		createdFiles.add(ALL_COLLECTIONS_HTML_FILENAME);
-		createdFiles.add(Collections.COLLECTIONS_ICON_DIRECTORY);
-
-		XmlUtils.performXsltTransformation(configuration, "stats.xsl", toplevelXmlFilename,
-				new File(configuration.photosBaseDirectory, STATS_HTML_FILENAME));
-		createdFiles.add(STATS_HTML_FILENAME);
-
-		sets.performXsltTransformation();
-		for (AbstractSet set : sets.getSets()) {
-			createdFiles.add(set.getSetId());
-		}
-		return createdFiles;
-	}
-
 	public static String getApplicationName() {
 		return StringUtils.defaultString(FlickrDownload.class.getPackage().getImplementationTitle(), "FlickrDownload");
 	}
@@ -137,6 +81,10 @@ public class FlickrDownload {
 	public static String getApplicationVersion() {
 		return StringUtils.defaultString(FlickrDownload.class.getPackage().getImplementationVersion(), "?");
 	}
+	
+	private static File getToplevelXmlFilename(File photosBaseDirectory) {
+				return new File(photosBaseDirectory, TOPLEVEL_XML_FILENAME);
+			}
 
 	public static String getApplicationWebsite() {
 		return "http://www.onstation.org/flickrdownload/";
@@ -206,11 +154,6 @@ public class FlickrDownload {
         configuration.onlyData = values.onlyData;
         configuration.onlyOriginals = values.onlyOriginals;
 
-		configuration.buddyIconFilename = new File(configuration.photosBaseDirectory, configuration.photosUser.getRealName() + ".jpg");
-		if (!configuration.onlyData && (configuration.alwaysDownloadBuddyIcon || !configuration.buddyIconFilename.exists()))
-			IOUtils.downloadUrl(configuration.photosUser.getSecureBuddyIconUrl(), 
-					configuration.buddyIconFilename);
-		createdToplevelFiles.add(configuration.buddyIconFilename.getName());
 
 		configuration.downloadExifData = values.downloadExifData;
 		configuration.partialDownloads = values.partial;
@@ -228,8 +171,5 @@ public class FlickrDownload {
 		// The photos must be downloaded before the toplevel XML files are created
 		sets.downloadAllPhotos();
 
-		createdToplevelFiles.addAll(createTopLevelFiles(configuration, collections, sets));
-
-		IOUtils.findFilesThatDoNotBelong(configuration.photosBaseDirectory, createdToplevelFiles, configuration.addExtensionToUnknownFiles);
 	}
 }

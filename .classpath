@@ -12,5 +12,7 @@
 	<classpathentry kind="lib" path="dev/lib/jdom-1.1.jar"/>
 	<classpathentry kind="lib" path="dev/lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="lib" path="dev/lib/saxon9he.jar"/>
+	<classpathentry kind="lib" path="dev/lib/flickr4java-2.10.jar"/>
+	<classpathentry kind="lib" path="dev/lib/scribe-1.3.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

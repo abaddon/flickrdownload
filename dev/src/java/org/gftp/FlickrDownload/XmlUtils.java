@@ -53,7 +53,6 @@ public class XmlUtils {
 			.addContent(createDateElement("flickrMemberSince", configuration.photosUser.getPhotosFirstDate()))
 			.addContent(createDateElement("mediaFirstTakenOn", configuration.photosUser.getPhotosFirstDateTaken()))
 			.addContent(createDateElement("photosSyncedOn", new Date()))
-			.addContent(createMediaElement("buddyIcon", configuration.buddyIconFilename, configuration.buddyIconFilename.getName(), configuration.photosUser.getSecureBuddyIconUrl()))
 			.addContent(new Element("authUser")
 				.setAttribute("id", configuration.auth.getUser().getId())
 				.setAttribute("username", configuration.auth.getUser().getUsername())

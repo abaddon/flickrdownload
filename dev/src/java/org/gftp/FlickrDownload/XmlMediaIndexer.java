@@ -148,7 +148,7 @@ public class XmlMediaIndexer implements MediaIndexer {
 		Collection<String> outputFiles = new ArrayList<String>();
 
 		File xmlFile = new File(this.configuration.photosBaseDirectory, INDEX_XML_FILENAME);
-		XmlUtils.outputXmlFile(xmlFile, generateStatsXml());
+		//XmlUtils.outputXmlFile(xmlFile, generateStatsXml());
 		outputFiles.add(INDEX_XML_FILENAME);
 		
 		XmlUtils.performXsltTransformation(this.configuration, "date_taken_index.xsl", xmlFile,

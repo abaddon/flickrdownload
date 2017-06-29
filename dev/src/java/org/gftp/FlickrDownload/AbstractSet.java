@@ -63,7 +63,7 @@ public abstract class AbstractSet {
 	protected abstract void download(Flickr flickr, Element setXml) throws IOException, SAXException, FlickrException;
 
 	public File getSetDirectory() {
-		return new File(this.configuration.photosBaseDirectory, getSetId());
+		return new File(this.configuration.photosBaseDirectory, getSetTitle());
 	}
 
 	public File getSetXmlFilename() {
@@ -237,8 +237,7 @@ public abstract class AbstractSet {
 				.addContent(new Element("description").setText(getSetDescription()));
 
 		download(flickr, setXml);
-
-		IOUtils.findFilesThatDoNotBelong(getSetDirectory(), this.expectedFiles, this.configuration.addExtensionToUnknownFiles);
+		
 		return setXml;
 	}
 

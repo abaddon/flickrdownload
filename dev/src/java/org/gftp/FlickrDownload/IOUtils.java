@@ -113,26 +113,4 @@ public class IOUtils {
 			return "mp4"; // FIXME
 		return filename.substring(filename.lastIndexOf(".") + 1);
 	}
-	
-	public static void findFilesThatDoNotBelong(File setDir, Collection<String> expectedFiles, String addExtensionToUnknownFiles) {
-		for (String file : setDir.list()) {
-			if (expectedFiles.contains(file))
-				continue;
-
-			if (StringUtils.isNotBlank(addExtensionToUnknownFiles) && !file.endsWith(addExtensionToUnknownFiles)) {
-				File oldFile = new File(setDir, file);
-				File newFile = new File(setDir, file + "." + addExtensionToUnknownFiles);
-				Logger.getLogger(IOUtils.class).warn(String.format("Unexpected file %s, adding %s extension.", new File(setDir, file).getAbsoluteFile(), addExtensionToUnknownFiles));
-				try {
-					oldFile.renameTo(newFile);
-				}
-				catch (Exception e) {
-					Logger.getLogger(IOUtils.class).warn(String.format("Error renaming %s to %s: %s", oldFile.getAbsolutePath(), newFile.getAbsolutePath(), e.getMessage()));
-				}
-			}
-			else {
-				Logger.getLogger(IOUtils.class).warn(String.format("Unexpected file %s.", new File(setDir, file).getAbsoluteFile()));
-			}
-		}
-	}
 }
