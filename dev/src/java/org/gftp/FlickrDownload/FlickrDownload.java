@@ -73,7 +73,6 @@ public class FlickrDownload {
 		public boolean onlyOriginals = false;
 	}
 
-		return new File(photosBaseDirectory, TOPLEVEL_XML_FILENAME);
 	public static String getApplicationName() {
 		return StringUtils.defaultString(FlickrDownload.class.getPackage().getImplementationTitle(), "FlickrDownload");
 	}
