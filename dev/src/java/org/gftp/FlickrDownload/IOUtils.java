@@ -33,16 +33,10 @@ import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.sanselan.Sanselan;
-import org.apache.sanselan.common.IImageMetadata;
-import org.apache.sanselan.formats.tiff.TiffImageMetadata;
-import org.apache.sanselan.formats.tiff.constants.ExifTagConstants;
-import org.apache.sanselan.formats.tiff.fieldtypes.FieldType;
-import org.apache.sanselan.formats.tiff.write.TiffOutputDirectory;
-import org.apache.sanselan.formats.tiff.write.TiffOutputField;
-import org.apache.sanselan.formats.tiff.write.TiffOutputSet;
 
 import com.flickr4java.flickr.photos.Photo;
+import com.google.common.io.ByteStreams;
+import com.google.common.io.Closeables;
 
 
 public class IOUtils {
@@ -68,21 +62,21 @@ public class IOUtils {
 	}
 	
 
-	public static void copyToFileAndCloseStreams(InputStream istr, File destFile) throws IOException {
-		OutputStream ostr = null;
+	public static void copyToFileAndCloseStreams(InputStream data, File destFile) throws IOException {
+		OutputStream output =null;
 		try {
- 			ostr = new FileOutputStream(destFile);
+			output = new FileOutputStream(destFile);
  			try {
  		        ByteStreams.copy(data, output);
  		    } finally {
- 		        Closeables.closeQuietly(output);
+ 		        //Closeables..closeQuietly(output);
  		    }
 		}
 		finally {
-			if (ostr != null)
-				ostr.close();
-			if (istr != null)
-				istr.close();
+			if (output != null)
+				output.close();
+			if (data != null)
+				data.close();
 		}
 	}
 
