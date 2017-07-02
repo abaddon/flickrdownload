@@ -37,6 +37,8 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.flickr4java.flickr.photos.Photo;
+
 public class XmlUtils {
 	public static String RAW_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss Z";
 	public static DateFormat rawDateFormatter = new SimpleDateFormat(RAW_DATE_FORMAT);
@@ -103,11 +105,11 @@ public class XmlUtils {
 		return element;
 	}
 	
-	public static void downloadMediaAndCreateElement(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Configuration configuration) throws IOException {
+	public static void downloadMediaAndCreateElement(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Photo photo) throws IOException {
 		if (remoteUrl == null || localFilename.exists()){
 			Logger.getLogger(XmlUtils.class).info(String.format("Skip file %s", localFilename.getName()));
 		}else{
-			IOUtils.downloadUrl(remoteUrl, localFilename);
+			IOUtils.downloadUrl(remoteUrl, localFilename, photo);
 		}
 
 		//return createMediaElement(elementName, localFilename, displayLocalFilename, remoteUrl);

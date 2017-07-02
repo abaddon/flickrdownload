@@ -125,7 +125,7 @@ public abstract class AbstractSet {
             				originalBaseFilename,
             				originalUrl,
             				false,
-            				configuration);
+            				photo);
             
 	}
 
