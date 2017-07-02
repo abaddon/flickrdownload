@@ -19,11 +19,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Collection;
-import java.util.Date;
-
 import javax.xml.ws.http.HTTPException;
 
 import org.apache.commons.httpclient.Header;
@@ -31,12 +26,10 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.flickr4java.flickr.photos.Photo;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.Closeables;
 
 
 public class IOUtils {
@@ -69,7 +62,6 @@ public class IOUtils {
  			try {
  		        ByteStreams.copy(data, output);
  		    } finally {
- 		        //Closeables..closeQuietly(output);
  		    }
 		}
 		finally {
