@@ -99,7 +99,7 @@ public abstract class AbstractSet {
             		Logger.getLogger(getClass()).warn(String.format("Missing video, Flicker ID: %s",photo.getId()));
             		return;
             	}
-            	originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tk%1$tM_%2$s_orig.%3$s",
+            	originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s",
             			photo.getDateTaken(), 
             			photo.getId(), 
             			IOUtils.getVideoExtension(originalUrl));
@@ -111,7 +111,7 @@ public abstract class AbstractSet {
             	catch (FlickrException e) {
             		// NOOP - original URL not available
             	}
-        		originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tk%1$tM_%2$s_orig.%3$s", 
+        		originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s", 
         				photo.getDateTaken(),
         				photo.getId(), 
         				photo.getOriginalFormat());
