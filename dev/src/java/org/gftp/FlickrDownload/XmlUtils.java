@@ -105,14 +105,13 @@ public class XmlUtils {
 		return element;
 	}
 	
-	public static void downloadMediaAndCreateElement(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Photo photo) throws IOException {
+	public static void downloadMedia(String elementName, File localFilename, String displayLocalFilename, String remoteUrl, boolean forceDownload, Photo photo) throws IOException {
 		if (remoteUrl == null || localFilename.exists()){
 			Logger.getLogger(XmlUtils.class).info(String.format("Skip file %s", localFilename.getName()));
 		}else{
 			IOUtils.downloadUrl(remoteUrl, localFilename, photo);
 		}
 
-		//return createMediaElement(elementName, localFilename, displayLocalFilename, remoteUrl);
 	}
 
 	public static void performXsltTransformation(final Configuration configuration, String xsltStylesheet, File xmlFile, File outputFile, XsltParameter... parameters) throws IOException, TransformerException {

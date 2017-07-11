@@ -94,33 +94,32 @@ public abstract class AbstractSet {
             String originalUrl = null;
             String originalBaseFilename;
             if (photo.getMedia().equals("video")) {
-            	originalUrl = getOriginalVideoUrl(flickr, photo.getId());
-            	if(originalUrl == null){
-            		Logger.getLogger(getClass()).warn(String.format("Missing video, Flicker ID: %s",photo.getId()));
-            		return;
-            	}
-            	originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s",
-            			photo.getDateTaken(), 
-            			photo.getId(), 
-            			IOUtils.getVideoExtension(originalUrl));
-            }
-            else {
-            	try {
-            		originalUrl = photo.getOriginalUrl();
-            	}
-            	catch (FlickrException e) {
-            		// NOOP - original URL not available
-            	}
-        		originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s", 
-        				photo.getDateTaken(),
-        				photo.getId(), 
-        				photo.getOriginalFormat());
+	            	originalUrl = getOriginalVideoUrl(flickr, photo.getId());
+	            	if(originalUrl == null){
+	            		Logger.getLogger(getClass()).warn(String.format("Missing video, Flicker ID: %s",photo.getId()));
+	            		return;
+	            	}
+	            	originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s",
+	            			photo.getDateTaken(), 
+	            			photo.getId(), 
+	            			IOUtils.getVideoExtension(originalUrl));
+            }else {
+	            	try {
+	            		originalUrl = photo.getOriginalUrl();
+	            	}
+	            	catch (FlickrException e) {
+	            		// NOOP - original URL not available
+	            	}
+	        		originalBaseFilename = String.format("%1$tY%1$tm%1$td_%1$tH%1$tM%1$tS_%2$s_orig.%3$s", 
+	        				photo.getDateTaken(),
+	        				photo.getId(), 
+	        				photo.getOriginalFormat());
             }
 
             this.expectedFiles.add(originalBaseFilename);
 
 
-            XmlUtils.downloadMediaAndCreateElement("image",
+            XmlUtils.downloadMedia("image",
             				new File(getSetDirectory(), originalBaseFilename), 
             				originalBaseFilename,
             				originalUrl,
@@ -129,19 +128,11 @@ public abstract class AbstractSet {
             
 	}
 
-	public Element createSetlevelXml(Flickr flickr) throws IOException, SAXException, FlickrException {
+	public void createSetlevelXml(Flickr flickr) throws IOException, SAXException, FlickrException {
 		Logger.getLogger(getClass()).info(String.format("Downloading information for set %s - %s", getSetId(), getSetTitle()));
-
-		Element setXml = new Element("set")
-				.addContent(XmlUtils.createApplicationXml())
-				.addContent(XmlUtils.createUserXml(this.configuration))
-				.addContent(new Element("id").setText(getSetId()))
-				.addContent(new Element("title").setText(getSetTitle()))
-				.addContent(new Element("description").setText(getSetDescription()));
 
 		download(flickr);
 		
-		return setXml;
 	}
 
 	private static String getOriginalVideoUrl(Flickr flickr, String photoId) throws IOException, FlickrException, SAXException {

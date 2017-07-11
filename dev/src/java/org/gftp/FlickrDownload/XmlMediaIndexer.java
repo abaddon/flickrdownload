@@ -92,58 +92,6 @@ public class XmlMediaIndexer implements MediaIndexer {
 		return newEle;
 	}
 
-	private Element generateStatsXml() {
-		Element parent = new Element("index")
-			.addContent(XmlUtils.createApplicationXml())
-			.addContent(XmlUtils.createUserXml(this.configuration));
-
-		Element allMedia = new Element("all_media");
-		for (MainPhotoIndexEntry entry : this.mainEntries.values()) {
-			Element setsXml = new Element("sets");
-			for (String id : entry.sets) {
-				setsXml.addContent(new Element("set").setAttribute("id", id));
-			}
-			entry.xmlSnippet.addContent(setsXml);
-			allMedia.addContent(entry.xmlSnippet);
-		}
-		parent.addContent(allMedia);
-
-		Element byDateTaken = new Element("by_date_taken");		
-		SortedMap<String, SortedSet<DateGroup>> yearMonths = new TreeMap<String, SortedSet<DateGroup>>();
-		for (DateGroup date : this.takenByDate.keySet()) {
-			if (!yearMonths.containsKey(date.year))
-				yearMonths.put(date.year, new TreeSet<DateGroup>());
-			yearMonths.get(date.year).add(date);
-
-			Element dateEle = new Element("date")
-								.setAttribute("raw", date.rawDate)
-								.setAttribute("year", date.year)
-								.setAttribute("month", date.month);
-			for (MediaEntryByDate m : this.takenByDate.get(date)) {
-				dateEle.addContent(new Element("media")
-								.setAttribute("id", m.mediaId)
-								.setAttribute("date_taken_raw", XmlUtils.rawDateFormatter.format(m.date)));
-			}
-			byDateTaken.addContent(dateEle);
-		}
-		
-		Element yearsEle = new Element("years");
-		for (String year : yearMonths.keySet()) {
-			Element yearEle = new Element("year").setAttribute("value", year);
-			for (DateGroup date : yearMonths.get(year)) {
-				yearEle.addContent(new Element("month")
-					.setAttribute("raw", date.rawDate)
-					.setAttribute("year", date.year)
-					.setAttribute("month", date.month));
-			}
-			yearsEle.addContent(yearEle);
-		}
-		byDateTaken.addContent(yearsEle);
-		parent.addContent(byDateTaken);
-
-		return parent;
-	}
-
 	public Collection<String> writeIndex() throws IOException, TransformerException {
 		Collection<String> outputFiles = new ArrayList<String>();
 

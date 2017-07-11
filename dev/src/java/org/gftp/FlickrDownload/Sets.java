@@ -100,11 +100,8 @@ public class Sets {
 			File setDir = set.getSetDirectory();
 			setDir.mkdir();
 
-			//File setXmlFilename = set.getSetXmlFilename();
-
 			set.createSetlevelXml(this.flickr);
 			
-			//XmlUtils.outputXmlFile(setXmlFilename, set.createSetlevelXml(this.flickr));
 		}
 	}
 }
