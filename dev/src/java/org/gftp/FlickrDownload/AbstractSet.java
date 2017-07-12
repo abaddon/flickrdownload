@@ -13,27 +13,13 @@ package org.gftp.FlickrDownload;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.gftp.FlickrDownload.Stats.MediaStats;
-import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.xml.sax.SAXException;
 
 import com.flickr4java.flickr.Flickr;
 import com.flickr4java.flickr.FlickrException;
-import com.flickr4java.flickr.photos.Exif;
-import com.flickr4java.flickr.photos.GeoData;
-import com.flickr4java.flickr.photos.Note;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.Size;
-import com.flickr4java.flickr.tags.Tag;
 
 public abstract class AbstractSet {
 	public static String SET_XML_FILENAME = "photos.xml";
@@ -45,10 +31,6 @@ public abstract class AbstractSet {
 	public static String ORIGINAL_MEDIA_DESCRIPTION = "Original";
 
 	private Configuration configuration;
-	private Collection<String> expectedFiles = new HashSet<String>(Arrays.asList(
-			SET_XML_FILENAME, 
-			Sets.SET_THUMBNAIL_FILENAME,
-			Sets.SET_DETAIL_FILENAME));
 	
 	public AbstractSet (Configuration configuration) {
 		this.configuration = configuration;
@@ -64,26 +46,6 @@ public abstract class AbstractSet {
 
 	public File getSetDirectory() {
 		return new File(this.configuration.photosBaseDirectory, getSetTitle());
-	}
-
-	public File getSetXmlFilename() {
-		return new File(getSetDirectory(), SET_XML_FILENAME);
-	}
-
-	private Element createStatsXml() throws JDOMException, IOException {
-		Map<String, MediaStats> allStats = new HashMap<String, MediaStats>();
-		Stats.processXmlFile(getSetXmlFilename(), allStats, getSetId(), NoopMediaIndexer.INSTANCE);
-		return Stats.generateStatsXml(allStats);
-	}
-
-	public Element createToplevelXml() throws JDOMException, IOException {
-		String setThumbnailBaseFilename = String.format("%s_thumb_sq.jpg", getPrimaryPhotoId());
-		File setDir = new File(this.configuration.photosBaseDirectory, getSetId());
-		return new Element("set")
-				.addContent(new Element("id").setText(getSetId()))
-				.addContent(new Element("title").setText(getSetTitle()))
-				.addContent(new Element("description").setText(getSetDescription()))
-				.addContent(createStatsXml());
 	}
 
 	protected void processPhoto(Photo photo, Flickr flickr) throws IOException, SAXException, FlickrException {
@@ -116,19 +78,14 @@ public abstract class AbstractSet {
 	        				photo.getOriginalFormat());
             }
 
-            this.expectedFiles.add(originalBaseFilename);
-
-
-            XmlUtils.downloadMedia("image",
+            XmlUtils.downloadMedia(
             				new File(getSetDirectory(), originalBaseFilename), 
-            				originalBaseFilename,
             				originalUrl,
-            				false,
             				photo);
             
 	}
 
-	public void createSetlevelXml(Flickr flickr) throws IOException, SAXException, FlickrException {
+	public void createSetlevel(Flickr flickr) throws IOException, SAXException, FlickrException {
 		Logger.getLogger(getClass()).info(String.format("Downloading information for set %s - %s", getSetId(), getSetTitle()));
 
 		download(flickr);
@@ -139,7 +96,7 @@ public abstract class AbstractSet {
 		String origUrl = null;
 		String hdUrl = null;
 		String siteUrl = null;
-		for (Size size : (Collection<Size>) flickr.getPhotosInterface().getSizes(photoId, true)) {
+		for (Size size : flickr.getPhotosInterface().getSizes(photoId, true)) {
 			if (size.getSource().contains("/play/orig"))
 				origUrl = size.getSource();
 			else if (size.getSource().contains("/play/hd"))

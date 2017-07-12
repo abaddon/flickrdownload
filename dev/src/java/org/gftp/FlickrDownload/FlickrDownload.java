@@ -12,25 +12,17 @@
 package org.gftp.FlickrDownload;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-import javax.xml.transform.TransformerException;
-
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.Option;
-import org.xml.sax.SAXException;
 
 import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.people.PeopleInterface;
 import com.flickr4java.flickr.people.User;
 
@@ -164,7 +156,6 @@ public class FlickrDownload {
 			Flickr.debugStream = true;
 		}
 
-		Collections collections = new Collections(configuration, flickr);
 		Sets sets = new Sets(configuration, flickr);
 
 		// The photos must be downloaded before the toplevel XML files are created
